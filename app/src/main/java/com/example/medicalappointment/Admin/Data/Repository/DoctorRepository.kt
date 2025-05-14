@@ -1,0 +1,88 @@
+package com.example.medicalapp.Admin.Data.Repository
+
+import android.net.Uri
+import android.util.Log
+import com.example.medicalapp.Admin.Data.Model.Doctor
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.tasks.await
+
+class DoctorRepository {
+    private val db = FirebaseFirestore.getInstance()
+    private val doctorCollection = db.collection("doctors")
+    private val firestore = FirebaseFirestore.getInstance()
+    private val storageRef = FirebaseStorage.getInstance().reference
+
+
+
+    suspend fun getDoctor(): List<Doctor> {
+        return try {
+            val snapshot = doctorCollection.get().await()
+            snapshot.documents.mapNotNull { doc ->
+                doc.toObject(Doctor::class.java)?.copy(doctorId = doc.id)
+            }
+        } catch (e: Exception) {
+            Log.e("FirestoreError", "Lỗi khi lấy danh sách bác sĩ", e)
+            emptyList()
+        }
+    }
+
+    suspend fun saveDoctor(doctor: Doctor) {
+        val data = hashMapOf(
+            "doctorId" to doctor.doctorId,
+            "hoTen" to doctor.hoTen,
+            "chuyenKhoa" to doctor.chuyenKhoa,
+            "diaChi" to doctor.diaChi,
+            "tieuSu" to doctor.tieuSu,
+            "kinhNghiem" to doctor.kinhNghiem,
+            "danhGia" to doctor.danhGia,
+            "benhNhanDaKham" to doctor.benhNhanDaKham,
+            "sdt" to doctor.sdt,
+            "website" to doctor.website,
+            "anh" to doctor.anh
+        )
+        doctorCollection.document(doctor.doctorId).set(data).await()
+    }
+
+    suspend fun updateDoctor(doctor: Doctor) {
+        val data = mapOf(
+            "hoTen" to doctor.hoTen,
+            "chuyenKhoa" to doctor.chuyenKhoa,
+            "diaChi" to doctor.diaChi,
+            "tieuSu" to doctor.tieuSu,
+            "kinhNghiem" to doctor.kinhNghiem,
+            "danhGia" to doctor.danhGia,
+            "benhNhanDaKham" to doctor.benhNhanDaKham,
+            "sdt" to doctor.sdt,
+            "website" to doctor.website,
+            "anh" to doctor.anh
+        )
+        doctorCollection.document(doctor.doctorId).update(data).await()
+    }
+
+    suspend fun deleteDoctor(doctorId: String) {
+        doctorCollection.document(doctorId).delete().await()
+    }
+
+
+
+    private suspend fun uploadImageToFirebase(imageUri: Uri, doctorId: String): String? {
+        return try {
+            val imageRef = storageRef.child("doctor_images/$doctorId.jpg")
+            imageRef.putFile(imageUri).await()
+
+            // Lấy URL ảnh sau khi tải lên thành công
+            val downloadUrl = imageRef.downloadUrl.await().toString()
+            Log.d("FirebaseStorage", "✅ Ảnh tải lên thành công: $downloadUrl")
+            downloadUrl
+        } catch (e: Exception) {
+            Log.e("FirebaseStorage", "❌ Lỗi khi tải ảnh lên Firebase Storage", e)
+            null
+        }
+    }
+
+    suspend fun getDoctorById(doctorId: String): Doctor? {
+        val snapshot = firestore.collection("doctors").document(doctorId).get().await()
+        return snapshot.toObject(Doctor::class.java)
+    }
+}
