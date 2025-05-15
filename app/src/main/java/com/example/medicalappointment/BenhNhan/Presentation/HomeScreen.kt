@@ -222,7 +222,6 @@ fun HomeScreen(navController: NavHostController?) {
                     }
                 }
             }
-            Text("Cộng đồng", style = MaterialTheme.typography.titleMedium)
         }
     }
 }
@@ -318,4 +317,3 @@ fun HomeScreenPreview() {
         HomeScreen(navController = null)
     }
 }
-

@@ -47,20 +47,16 @@ import com.example.medicalappointment.BenhNhan.Presentation.Patient.RateDoctorSc
 import com.example.medicalappointment.BenhNhan.Presentation.hospital.HospitalDetailScreen
 import com.example.medicalappointment.BenhNhan.Presentation.Patient.Scheduled
 import com.example.medicalappointment.BenhNhan.Presentation.booking.SuccessScreen
-import com.example.medicalappointment.benhnhan.presentation.SearchResultScreen
+import com.example.medicalappointment.Benhnhan.Presentation.SearchResultScreen
 import com.example.medicalappointment.Bacsi.Presentation.DoctorProfileScreen
 import com.example.medicalappointment.Bacsi.Presentation.DoctorScreen
+import com.example.medicalappointment.ChatGptBotApp.ui.screen.ChatScreen
+import com.example.medicalappointment.ChatGptBotApp.viewmodel.ChatViewModel
 
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-//        // Setup Firebase App Check
-//        FirebaseAppCheck.getInstance().installAppCheckProviderFactory(
-//            PlayIntegrityAppCheckProviderFactory.getInstance()
-//        )
-
         setContent {
             MedicalAppointmentTheme {
                 val navController = rememberNavController()
@@ -206,7 +202,25 @@ fun NavigationGraph(navController: NavHostController) {
             EditHospitalScreen(navController = navController, hospitalId = hospitalId)
         }
 
+        composable("chat_screen") {
+            val chatViewModel: ChatViewModel = viewModel()
+            val navController : NavHostController = navController
+            ChatScreen(chatViewModel = chatViewModel, navController = navController)
+        }
     }
 }
 
 
+//class MainActivity : ComponentActivity() {
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        setContent {
+//
+//            MedicalAppointmentTheme {
+//                // Gọi màn hình Chat
+//                val chatViewModel: ChatViewModel = viewModel()  // Kết nối ViewModel
+//                ChatScreen(chatViewModel = chatViewModel)      // Gọi ChatScreen và truyền ViewModel
+//            }
+//        }
+//    }
+//}

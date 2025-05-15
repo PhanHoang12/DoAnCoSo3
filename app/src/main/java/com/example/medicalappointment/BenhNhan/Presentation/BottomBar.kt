@@ -22,7 +22,7 @@ fun BottomNavigationBar(navController: NavHostController?) {
     val items = listOf(
         BottomNavItem("Trang chủ", Icons.Default.Home, "home"),
         BottomNavItem("Lịch khám", Icons.Default.DateRange, "scheduled/{IdBenhNhan}"),
-        BottomNavItem("Tin nhắn", Icons.Default.Chat, "messages"),
+        BottomNavItem("Tin nhắn", Icons.Default.Chat, "chat_screen"),
         BottomNavItem("Tài khoản", Icons.Default.Person, "patient_profilescreen")
     )
 

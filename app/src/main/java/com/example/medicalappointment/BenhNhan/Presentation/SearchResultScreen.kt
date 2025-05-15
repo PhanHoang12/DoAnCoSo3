@@ -1,4 +1,4 @@
-package com.example.medicalappointment.benhnhan.presentation
+package com.example.medicalappointment.Benhnhan.Presentation
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn

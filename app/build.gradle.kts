@@ -108,6 +108,13 @@ dependencies {
 // Hilt + Compose
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
+    // Retrofit & Gson
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // OkHttp Logging
+    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
+
 
 
 }
