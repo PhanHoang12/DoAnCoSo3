@@ -37,6 +37,8 @@ import com.example.medicalapp.BenhNhan.Repository.PatientRepository
 import com.example.medicalappointment.Admin.Data.Repository.HospitalRepository
 import com.example.medicalappointment.Admin.Data.Repository.SpecialtyRepository
 import com.example.medicalapp.Admin.Data.Model.Specialty
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -124,11 +126,22 @@ fun HomeScreen(navController: NavHostController?) {
 
                     Spacer(modifier = Modifier.weight(1f))
 
+//                    Icon(
+//                        Icons.Default.Notifications,
+//                        contentDescription = "Thông báo",
+//                        tint = Color.White
+//                    )
+
                     Icon(
                         Icons.Default.Notifications,
                         contentDescription = "Thông báo",
-                        tint = Color.White
+                        tint = Color.White,
+                        modifier = Modifier.clickable {
+                            // Điều hướng tới NotificationScreen với ID của bệnh nhân
+                            navController?.navigate("notification_screen/${Firebase.auth.currentUser?.uid}")
+                        }
                     )
+
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))

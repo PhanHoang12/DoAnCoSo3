@@ -50,6 +50,7 @@ import com.example.medicalappointment.BenhNhan.Presentation.booking.SuccessScree
 import com.example.medicalappointment.Benhnhan.Presentation.SearchResultScreen
 import com.example.medicalappointment.Bacsi.Presentation.DoctorProfileScreen
 import com.example.medicalappointment.Bacsi.Presentation.DoctorScreen
+import com.example.medicalappointment.BenhNhan.Presentation.Notification.NotificationScreen
 import com.example.medicalappointment.ChatGptBotApp.ui.screen.ChatScreen
 import com.example.medicalappointment.ChatGptBotApp.viewmodel.ChatViewModel
 
@@ -207,6 +208,14 @@ fun NavigationGraph(navController: NavHostController) {
             val navController : NavHostController = navController
             ChatScreen(chatViewModel = chatViewModel, navController = navController)
         }
+
+    // Chức năng thông báo đến bệnh nhân khi bác sĩ xác nhận hoặc từ chối lịch hẹn
+        composable("notification_screen/{patientId}") { backStackEntry ->
+            val patientId = backStackEntry.arguments?.getString("patientId") ?: ""
+            val navController: NavHostController = navController
+            NotificationScreen(patientId = patientId, navController = navController)
+        }
+
     }
 }
 

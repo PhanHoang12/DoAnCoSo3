@@ -79,7 +79,9 @@ fun DoctorScreen(
                         ) {
                             // Xác nhận lịch hẹn
                             IconButton(onClick = {
-                                viewModel.confirmBooking(booking.BookingID,
+                                viewModel.confirmBooking(
+                                    booking.BookingID,
+                                    booking.IdBenhNhan,
                                     onSuccess = {
                                         Toast.makeText(context, "Đã xác nhận lịch hẹn!", Toast.LENGTH_SHORT).show()
                                     },
@@ -96,7 +98,9 @@ fun DoctorScreen(
                             }
 
                             IconButton(onClick = {
-                                viewModel.rejectBooking(booking.BookingID,
+                                viewModel.rejectBooking(
+                                    booking.BookingID,
+                                    booking.IdBenhNhan,
                                     onSuccess = {
                                         Toast.makeText(context, "Đã từ chối lịch hẹn", Toast.LENGTH_SHORT).show()
                                     },
