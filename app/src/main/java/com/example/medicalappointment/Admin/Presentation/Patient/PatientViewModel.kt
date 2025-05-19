@@ -10,14 +10,12 @@ import kotlinx.coroutines.launch
 
 class PatientViewModel(private val repository: PatientRepository) : ViewModel() {
 
-    // StateFlow để lưu danh sách bệnh nhân
     private val _patient = MutableStateFlow<List<Patient>>(emptyList())
     val patient: StateFlow<List<Patient>> get() = _patient
 
     private val _selectedPatient = MutableStateFlow<Patient?>(null)
     val selectedPatient: StateFlow<Patient?> = _selectedPatient
 
-    // StateFlow để hiển thị thông báo
     private val _message = MutableStateFlow<String?>(null)
     val message: StateFlow<String?> get() = _message
 

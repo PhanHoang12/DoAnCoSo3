@@ -140,7 +140,7 @@
                         Divider()
 
                         LazyColumn {
-                            items(patientList) { patient ->  // items(patientList) đúng
+                            items(patientList) { patient ->
                                 Row(
                                     Modifier
                                         .fillMaxWidth()

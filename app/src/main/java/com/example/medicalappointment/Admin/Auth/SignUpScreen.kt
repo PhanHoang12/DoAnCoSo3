@@ -43,7 +43,7 @@ fun SignUpScreen(navController: NavController) {
     var passwordVisible by remember { mutableStateOf(false) }
 
 
-    val auth = FirebaseAuth.getInstance() // Khởi tạo FirebaseAuth instance
+    val auth = FirebaseAuth.getInstance()
 
     Box(
         modifier = Modifier
@@ -219,7 +219,8 @@ fun SignUpScreen(navController: NavController) {
 
                                             val user = hashMapOf(
                                                 "email" to email,
-                                                "role" to role
+                                                "role" to role,
+                                                "userId" to uid
                                             )
 
                                             uid?.let {

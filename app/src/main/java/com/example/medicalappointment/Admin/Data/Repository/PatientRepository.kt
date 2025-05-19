@@ -16,7 +16,7 @@ class PatientRepository {
             snapshot.documents.mapNotNull { it.toObject(Patient::class.java) }
         } catch (e: Exception) {
             Log.e("FirestoreError", "Lỗi khi lấy danh sách bệnh nhân", e)
-            emptyList() // Trả về danh sách rỗng nếu có lỗi
+            emptyList()
         }
     }
 
@@ -59,6 +59,10 @@ class PatientRepository {
     suspend fun deletePatient(userId: String): Boolean {
         return try {
             patientCollection.document(userId).delete().await()
+            FirebaseFirestore.getInstance().collection("users")
+                .document(userId)
+                .delete()
+                .await()
             Log.d("FirestoreSuccess", "✅ Xóa bệnh nhân $userId thành công")
             true
         } catch (e: Exception) {
