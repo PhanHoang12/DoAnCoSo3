@@ -1,8 +1,12 @@
 package com.example.medicalapp.Admin.Auth
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -10,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -35,6 +40,7 @@ fun SignUpScreen(navController: NavController) {
     var showOtpDialog by remember { mutableStateOf(false) }
     var otpSent by remember { mutableStateOf("") }
     var otpInput by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
 
 
     val auth = FirebaseAuth.getInstance() // Khởi tạo FirebaseAuth instance
@@ -42,6 +48,7 @@ fun SignUpScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color(0xFFE3F2FD))
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -80,7 +87,19 @@ fun SignUpScreen(navController: NavController) {
                         value = password,
                         onValueChange = { password = it },
                         label = { Text("Mật khẩu") },
-                        visualTransformation = PasswordVisualTransformation(),
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            val image = if (passwordVisible)
+                                Icons.Filled.Visibility
+                            else Icons.Filled.VisibilityOff
+
+                            val description =
+                                if (passwordVisible) "Ẩn mật khẩu" else "Hiện mật khẩu"
+
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(imageVector = image, contentDescription = description)
+                            }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 12.dp)
@@ -90,37 +109,73 @@ fun SignUpScreen(navController: NavController) {
                         value = confirmPassword,
                         onValueChange = { confirmPassword = it },
                         label = { Text("Xác nhận mật khẩu") },
-                        visualTransformation = PasswordVisualTransformation(),
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            val image = if (passwordVisible)
+                                Icons.Filled.Visibility
+                            else Icons.Filled.VisibilityOff
+
+                            val description =
+                                if (passwordVisible) "Ẩn mật khẩu" else "Hiện mật khẩu"
+
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(imageVector = image, contentDescription = description)
+                            }
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 16.dp)
                     )
 
-                        Button(
-                            onClick = {
-                                if (email.isEmpty()) {
-                                    Toast.makeText(context, "Email không được để trống!", Toast.LENGTH_SHORT).show()
-                                } else if (!email.contains("@") || !email.contains(".")) {
-                                    Toast.makeText(context, "Email không hợp lệ!", Toast.LENGTH_SHORT).show()
-                                } else if (password.isEmpty()) {
-                                    Toast.makeText(context, "Mật khẩu không được để trống!", Toast.LENGTH_SHORT).show()
-                                } else if (password.length < 6) {
-                                    Toast.makeText(context, "Mật khẩu có ít nhất 6 kí tự!", Toast.LENGTH_SHORT).show()
-                                } else if (password != confirmPassword) {
-                                    Toast.makeText(context, "Mật khẩu và xác nhận mật khẩu không khớp!", Toast.LENGTH_SHORT).show()
-                                } else {
-                                    otpSent = generateOtp()
-                                    sendOtpToEmail(email, otpSent) { success ->
-                                        if (success) {
-                                            showOtpDialog = true
+                    Button(
+                        onClick = {
+                            if (email.isEmpty()) {
+                                Toast.makeText(context, "Email không được để trống!", Toast.LENGTH_SHORT).show()
+                            } else if (!email.contains("@") || !email.contains(".")) {
+                                Toast.makeText(context, "Email không hợp lệ!", Toast.LENGTH_SHORT).show()
+                            } else if (password.isEmpty()) {
+                                Toast.makeText(context, "Mật khẩu không được để trống!", Toast.LENGTH_SHORT).show()
+                            } else if (password.length < 6) {
+                                Toast.makeText(context, "Mật khẩu có ít nhất 6 kí tự!", Toast.LENGTH_SHORT).show()
+                            } else if (password != confirmPassword) {
+                                Toast.makeText(
+                                    context, "Mật khẩu và xác nhận mật khẩu không khớp!", Toast.LENGTH_SHORT).show()
+                            } else {
+//                                    otpSent = generateOtp()
+//                                    sendOtpToEmail(email, otpSent) { success ->
+//                                        if (success) {
+//                                            showOtpDialog = true
+//                                        } else {
+//                                            Toast.makeText(context, "Gửi email thất bại!", Toast.LENGTH_SHORT).show()
+//                                        }
+//                                    }
+                                // Check Email trong bảng users
+                                val db = FirebaseFirestore.getInstance()
+                                val usersRef = db.collection("users")
+
+                                usersRef.whereEqualTo("email", email)
+                                    .get()
+                                    .addOnSuccessListener { documents ->
+                                        if (!documents.isEmpty) {
+                                            Toast.makeText(context, "Email đã tồn tại trong hệ thống!", Toast.LENGTH_SHORT).show()
                                         } else {
-                                            Toast.makeText(context, "Gửi email thất bại!", Toast.LENGTH_SHORT).show()
+                                            otpSent = generateOtp()
+                                            sendOtpToEmail(email, otpSent) { success ->
+                                                if (success) {
+                                                    showOtpDialog = true
+                                                } else {
+                                                    Toast.makeText(context, "Gửi email thất bại!", Toast.LENGTH_SHORT).show()
+                                                }
+                                            }
                                         }
                                     }
-                                }
-                            },
+                                    .addOnFailureListener {
+                                        Toast.makeText(context, "Lỗi khi kiểm tra email: ${it.message}", Toast.LENGTH_SHORT).show()
+                                    }
+                            }
+                        },
 
-                            modifier = Modifier
+                        modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
                     ) {
@@ -168,30 +223,43 @@ fun SignUpScreen(navController: NavController) {
                                             )
 
                                             uid?.let {
-                                                userRef.document(it).set(user).addOnSuccessListener {
-                                                    Toast.makeText(context, "Đăng ký thành công!", Toast.LENGTH_SHORT).show()
-                                                    showOtpDialog = false
-                                                    navController.navigate("signin") {
-                                                        popUpTo("signup") { inclusive = true }
-                                                    }
-                                                }.addOnFailureListener {
-                                                    Toast.makeText(context, "Lỗi khi lưu dữ liệu người dùng", Toast.LENGTH_SHORT).show()
+                                                userRef.document(it).set(user)
+                                                    .addOnSuccessListener {
+                                                        Toast.makeText(
+                                                            context,
+                                                            "Đăng ký thành công!",
+                                                            Toast.LENGTH_SHORT
+                                                        ).show()
+                                                        showOtpDialog = false
+                                                        navController.navigate("signin") {
+                                                            popUpTo("signup") { inclusive = true }
+                                                        }
+                                                    }.addOnFailureListener {
+                                                    Toast.makeText(
+                                                        context,
+                                                        "Lỗi khi lưu dữ liệu người dùng",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
                                                 }
                                             }
                                         }
                                     } else {
-                                        Toast.makeText(context, "Lỗi tạo tài khoản: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            context,
+                                            "Lỗi tạo tài khoản: ${task.exception?.message}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
                                 }
 
                         } else {
-                            Toast.makeText(context, "Mã OTP sai, thử lại!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Mã OTP sai, thử lại!", Toast.LENGTH_SHORT)
+                                .show()
                         }
                     }) {
                         Text("Xác nhận")
                     }
-                }
-                ,
+                },
                 dismissButton = {
                     TextButton(onClick = { showOtpDialog = false }) {
                         Text("Hủy")
@@ -210,15 +278,16 @@ fun SignUpScreen(navController: NavController) {
                 }
             )
         }
-
     }
 }
+
 fun generateOtp(): String {
     val chars = "0123456789"
     return (1..6).map { chars.random() }.joinToString("")
 }
+
 fun sendOtpToEmail(email: String, otp: String, callback: (Boolean) -> Unit) {
-    val url = /*"https://formspree.io/f/xjkwerel"*/"https://formspree.io/f/xovdnwzj"
+    val url = "https://formspree.io/f/xjkwerel"/*"https://formspree.io/f/xovdnwzj"*/
     val client = OkHttpClient()
 
     val formBody = FormBody.Builder()

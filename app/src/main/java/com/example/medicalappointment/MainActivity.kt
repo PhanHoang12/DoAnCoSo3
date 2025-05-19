@@ -43,11 +43,10 @@ import com.example.medicalappointment.Admin.Presentation.Hospital.EditHospitalSc
 import com.example.medicalappointment.BenhNhan.Presentation.DoctorDetailScreen
 import com.example.medicalappointment.BenhNhan.Presentation.DoctorsBySpecialtyScreen
 import com.example.medicalappointment.BenhNhan.Presentation.Patient.RateDoctorScreen
-
 import com.example.medicalappointment.BenhNhan.Presentation.hospital.HospitalDetailScreen
 import com.example.medicalappointment.BenhNhan.Presentation.Patient.Scheduled
 import com.example.medicalappointment.BenhNhan.Presentation.booking.SuccessScreen
-import com.example.medicalappointment.Benhnhan.Presentation.SearchResultScreen
+import com.example.medicalappointment.benhnhan.presentation.SearchResultScreen
 import com.example.medicalappointment.Bacsi.Presentation.DoctorProfileScreen
 import com.example.medicalappointment.Bacsi.Presentation.DoctorScreen
 import com.example.medicalappointment.BenhNhan.Presentation.Notification.NotificationScreen
@@ -166,43 +165,49 @@ fun NavigationGraph(navController: NavHostController) {
             SearchResultScreen(navController, query)
         }
 
+
         composable("scheduled/{IdBenhNhan}") { backStackEntry ->
             val idBenhNhan = backStackEntry.arguments?.getString("IdBenhNhan") ?: ""
             Scheduled(navController)
-
         }
+
+        // Màn hình hiển thị nút xem bệnh nhân ở Admin
         composable("see_patient/{userId}") { backStackEntry ->
             val userId = backStackEntry.arguments?.getString("userId") ?: ""
             SeePatientScreen(navController, userId)
         }
+
+        // Màn hình hiển thị nút xem bác sĩ ở Admin
         composable("see_doctor/{doctorId}") { backStackEntry ->
             val doctorId = backStackEntry.arguments?.getString("doctorId") ?: ""
             SeeDoctorScreen(navController, doctorId)
         }
-//        composable("chat_screen/{senderId}/{receiverId}") { backStackEntry ->
-//            val senderId = backStackEntry.arguments?.getString("senderId") ?: return@composable
-//            val receiverId = backStackEntry.arguments?.getString("receiverId") ?: return@composable
-//            ChatScreen(senderId = senderId, receiverId = receiverId)
-//        }
+        
+        // Trang Doctor
         composable("homeDoctor/{doctorId}") { backStackEntry ->
             val doctorId = backStackEntry.arguments?.getString("doctorId") ?: ""
             DoctorScreen(doctorId = doctorId, navController = navController)
         }
+        
+        // Đánh giá doctor
         composable("ratedoctor/{doctorId}") { backStackEntry ->
             val doctorId = backStackEntry.arguments?.getString("doctorId") ?: ""
             RateDoctorScreen(navController = navController, doctorId = doctorId)
         }
 
+        // Chỉnh sửa thônh tin doctor
         composable("doctorProfile/{doctorId}") { backStackEntry ->
             val doctorId = backStackEntry.arguments?.getString("doctorId") ?: ""
             DoctorProfileScreen(doctorId = doctorId, navController = navController)
         }
 
+        // Chỉnh sửa thông tin bệnh viện lấy theo ID của bệnh viện
         composable("edit_hospital/{hospitalId}") { backStackEntry ->
             val hospitalId = backStackEntry.arguments?.getString("hospitalId") ?: ""
             EditHospitalScreen(navController = navController, hospitalId = hospitalId)
         }
 
+        // Màn hình chatbot
         composable("chat_screen") {
             val chatViewModel: ChatViewModel = viewModel()
             val navController : NavHostController = navController
@@ -226,9 +231,7 @@ fun NavigationGraph(navController: NavHostController) {
 //        setContent {
 //
 //            MedicalAppointmentTheme {
-//                // Gọi màn hình Chat
-//                val chatViewModel: ChatViewModel = viewModel()  // Kết nối ViewModel
-//                ChatScreen(chatViewModel = chatViewModel)      // Gọi ChatScreen và truyền ViewModel
+//                PaymentScreen()      // Gọi ChatScreen và truyền ViewModel
 //            }
 //        }
 //    }

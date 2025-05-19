@@ -126,12 +126,6 @@ fun HomeScreen(navController: NavHostController?) {
 
                     Spacer(modifier = Modifier.weight(1f))
 
-//                    Icon(
-//                        Icons.Default.Notifications,
-//                        contentDescription = "Thông báo",
-//                        tint = Color.White
-//                    )
-
                     Icon(
                         Icons.Default.Notifications,
                         contentDescription = "Thông báo",

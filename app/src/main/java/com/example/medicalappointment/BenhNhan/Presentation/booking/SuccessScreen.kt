@@ -33,7 +33,6 @@ fun SuccessScreen(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Thêm Spacer để đẩy "Đặt lịch thành công!" xuống dưới một khoảng
         Spacer(modifier = Modifier.height(32.dp)) // Khoảng cách thêm vào
 
         Text(
@@ -46,7 +45,7 @@ fun SuccessScreen(navController: NavHostController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Thông tin lịch hẹn đã được gửi. Vui lòng thanh toán để xác nhận.",
+            text = "Thông tin lịch hẹn đã được gửi. Vui lòng chờ bác sĩ xác nhận.",
             fontSize = 16.sp,
             lineHeight = 22.sp
         )

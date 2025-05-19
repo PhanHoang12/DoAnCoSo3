@@ -59,6 +59,7 @@ fun MedicalProfileScreen(navController: NavHostController?) {
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
+        Spacer(modifier = Modifier.height(24.dp))
         Text("Khởi tạo hồ sơ y tế", fontSize = 20.sp)
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -70,18 +71,22 @@ fun MedicalProfileScreen(navController: NavHostController?) {
         )
         Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(
-            value = dob,
-            onValueChange = {},
-            label = { Text("Ngày sinh") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { showDatePicker = true },
-            readOnly = true,
-            trailingIcon = {
-                Icon(Icons.Default.DateRange, contentDescription = "Chọn ngày")
-            }
-        )
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .clickable { showDatePicker = true }) {
+            OutlinedTextField(
+                value = dob,
+                onValueChange = {},
+                label = { Text("Ngày sinh") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showDatePicker = true },
+                readOnly = true,
+                trailingIcon = {
+                    Icon(Icons.Default.DateRange, contentDescription = "Chọn ngày")
+                }
+            )
+        }
 
         if (showDatePicker) {
             DatePickerDialog(

@@ -133,10 +133,10 @@ fun DoctorScreen(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp) // Điều chỉnh khoảng cách cho nút
-                .height(56.dp),  // Điều chỉnh chiều cao để nút nổi bật hơn
+                .padding(16.dp)
+                .height(56.dp),
         ) {
-            Text("Đăng xuất", style = MaterialTheme.typography.titleMedium) // Sử dụng body1 hoặc kiểu chữ thích hợp khác
+            Text("Đăng xuất", style = MaterialTheme.typography.titleMedium)
         }
 
     }

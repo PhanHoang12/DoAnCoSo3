@@ -2,19 +2,27 @@ package com.example.medicalapp.Admin.Auth
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import com.google.firebase.firestore.FirebaseFirestore
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.medicalapp.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 
@@ -28,10 +36,10 @@ fun SignInScreen(navController: NavController) {
 
 
     val auth = FirebaseAuth.getInstance()
+    var passwordVisible by remember { mutableStateOf(false) }
 
     var hasNavigated by remember { mutableStateOf(false) }
 
-    // Theo dõi trạng thái đăng nhập thực tế
     var currentUser by remember { mutableStateOf<FirebaseUser?>(null) }
 
     DisposableEffect(Unit) {
@@ -44,15 +52,13 @@ fun SignInScreen(navController: NavController) {
             auth.removeAuthStateListener(listener)
         }
     }
-
-
     // Nếu đã đăng nhập thì điều hướng theo role
     LaunchedEffect(currentUser) {
         if (currentUser != null && !hasNavigated) {
             hasNavigated = true
             val uid = currentUser!!.uid
 
-            val testDoctorId = "DL001"
+            val testDoctorId = "HP01"
             FirebaseFirestore.getInstance()
                 .collection("users").document(uid).get()
                 .addOnSuccessListener { doc ->
@@ -102,6 +108,7 @@ fun SignInScreen(navController: NavController) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(Color(0xFFE3F2FD))
                 .padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
@@ -112,6 +119,20 @@ fun SignInScreen(navController: NavController) {
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Image(
+                    painter = painterResource(id = R.drawable.logo_medical),
+                    contentDescription = "App Logo",
+                    modifier = Modifier
+                        .size(100.dp)
+                        .padding(bottom = 16.dp)
+                )
+
+                Text(
+                    text = "Welcome to Medical App",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
                 Text("Đăng nhập", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.height(24.dp))
                 Card(
@@ -133,7 +154,18 @@ fun SignInScreen(navController: NavController) {
                             value = password,
                             onValueChange = { password = it },
                             label = { Text("Mật khẩu") },
-                            visualTransformation = PasswordVisualTransformation(),
+                            visualTransformation = if(passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                            trailingIcon = {
+                                val image = if (passwordVisible)
+                                    Icons.Filled.Visibility
+                                else Icons.Filled.VisibilityOff
+
+                                val description = if (passwordVisible) "Ẩn mật khẩu" else "Hiện mật khẩu"
+
+                                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                    Icon(imageVector = image, contentDescription = description)
+                                }
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(bottom = 16.dp)
@@ -145,12 +177,32 @@ fun SignInScreen(navController: NavController) {
                                     !email.contains("@") || !email.contains(".") -> Toast.makeText(context, "Email không hợp lệ!", Toast.LENGTH_SHORT).show()
                                     password.isEmpty() -> Toast.makeText(context, "Mật khẩu không được để trống", Toast.LENGTH_SHORT).show()
                                     else -> {
-                                        auth.signInWithEmailAndPassword(email, password)
-                                            .addOnCompleteListener { task ->
-                                                if (!task.isSuccessful) {
-
-                                                    Toast.makeText(context, "Email hoặc mật khẩu không đúng!", Toast.LENGTH_SHORT).show()
+//                                        auth.signInWithEmailAndPassword(email, password)
+//                                            .addOnCompleteListener { task ->
+//                                                if (!task.isSuccessful) {
+//
+//                                                    Toast.makeText(context, "Email hoặc mật khẩu không đúng!", Toast.LENGTH_SHORT).show()
+//                                                }
+//                                            }
+                                        // Kiểm tra email có tồn tại trong bảng users không
+                                        val db = FirebaseFirestore.getInstance()
+                                        db.collection("users")
+                                            .whereEqualTo("email", email.trim())
+                                            .get()
+                                            .addOnSuccessListener { documents ->
+                                                if (documents.isEmpty) {
+                                                    Toast.makeText(context, "Bạn chưa có tài khoản, vui lòng đăng ký.", Toast.LENGTH_SHORT).show()
+                                                } else {
+                                                    auth.signInWithEmailAndPassword(email, password)
+                                                        .addOnCompleteListener { task ->
+                                                            if (!task.isSuccessful) {
+                                                                Toast.makeText(context, "Email hoặc mật khẩu không đúng!", Toast.LENGTH_SHORT).show()
+                                                            }
+                                                        }
                                                 }
+                                            }
+                                            .addOnFailureListener {
+                                                Toast.makeText(context, "Lỗi kết nối đến cơ sở dữ liệu!", Toast.LENGTH_SHORT).show()
                                             }
                                     }
                                 }

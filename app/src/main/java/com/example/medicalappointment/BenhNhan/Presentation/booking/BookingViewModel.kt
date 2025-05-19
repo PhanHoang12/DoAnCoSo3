@@ -32,7 +32,6 @@ class BookingViewModel : ViewModel() {
         }
     }
 
-    // Xác nhận lịch hẹn
     fun confirmBooking(
         BookingID: String,
         patientId: String,
@@ -66,58 +65,55 @@ class BookingViewModel : ViewModel() {
             }
     }
 
-        // Xoá lịch hẹn
-        fun deleteBooking(
-            BookingID: String,
-            onSuccess: () -> Unit = {},
-            onFailure: (String) -> Unit = {}
-        ) {
-            FirebaseFirestore.getInstance()
-                .collection("bookings")
-                .document(BookingID)
-                .delete()
-                .addOnSuccessListener {
-                    onSuccess()
-                    currentDoctorId?.let { loadBookings(it) }  // Làm mới danh sách sau khi xoá
-                }
-                .addOnFailureListener { exception ->
-                    onFailure("Xoá thất bại: ${exception.message ?: "Không rõ lý do"}")
-                }
-        }
+    // Xoá lịch hẹn
+    fun deleteBooking(
+        BookingID: String,
+        onSuccess: () -> Unit = {},
+        onFailure: (String) -> Unit = {}
+    ) {
+        FirebaseFirestore.getInstance()
+            .collection("bookings")
+            .document(BookingID)
+            .delete()
+            .addOnSuccessListener {
+                onSuccess()
+                currentDoctorId?.let { loadBookings(it) }  // Làm mới danh sách sau khi xoá
+            }
+            .addOnFailureListener { exception ->
+                onFailure("Xoá thất bại: ${exception.message ?: "Không rõ lý do"}")
+            }
+    }
 
-        // Từ chối lịch hẹn
-        fun rejectBooking(
-            BookingID: String,
-            patientId: String,
-            onSuccess: () -> Unit = {},
-            onFailure: (String) -> Unit = {}
-        ) {
-            val db = FirebaseFirestore.getInstance()
-            db.collection("bookings")
-                .document(BookingID)
-                .update("trangThai", "Đã từ chối")
-                .addOnSuccessListener {
-                    // Gửi thông báo cho bệnh nhân
-                    val notification = Notification(
-                        userId = patientId,
-                        title = "Lịch hẹn bị từ chối",
-                        message = "Bác sĩ đã từ chối lịch hẹn của bạn.",
-                        timestamp = System.currentTimeMillis(),
-                        isRead = false
-                    )
-
-//                onSuccess()
-//                currentDoctorId?.let { loadBookings(it) }  // Làm mới danh sách sau khi từ chối
-                    db.collection("notifications")
-                        .add(notification)
-                        .addOnSuccessListener {
-                            onSuccess()
-                            currentDoctorId?.let { loadBookings(it) }
-                        }
-                }
-                .addOnFailureListener { exception ->
-                    onFailure("Từ chối thất bại: ${exception.message ?: "Không rõ lý do"}")
-                }
-        }
+    // Từ chối lịch hẹn
+    fun rejectBooking(
+        BookingID: String,
+        patientId: String,
+        onSuccess: () -> Unit = {},
+        onFailure: (String) -> Unit = {}
+    ) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("bookings")
+            .document(BookingID)
+            .update("trangThai", "Đã từ chối")
+            .addOnSuccessListener {
+                // Gửi thông báo tới patients
+                val notification = Notification(
+                    userId = patientId,
+                    title = "Lịch hẹn bị từ chối",
+                    message = "Bác sĩ đã từ chối lịch hẹn của bạn.",
+                    timestamp = System.currentTimeMillis(),
+                    isRead = false
+                )
+                db.collection("notifications")
+                    .add(notification)
+                    .addOnSuccessListener {
+                        onSuccess()
+                        currentDoctorId?.let { loadBookings(it) }
+                    }
+            }
+            .addOnFailureListener { exception ->
+                onFailure("Từ chối thất bại: ${exception.message ?: "Không rõ lý do"}")
+            }
+    }
 
 }

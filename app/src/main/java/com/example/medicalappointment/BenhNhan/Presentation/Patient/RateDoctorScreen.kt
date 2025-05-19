@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.firebase.firestore.FirebaseFirestore
 import com.example.medicalapp.Admin.Data.Model.Doctor
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,6 +28,7 @@ fun RateDoctorScreen(
     var selectedRating by remember { mutableStateOf(0) }
     var isSubmitted by remember { mutableStateOf(false) }
     var comment by remember { mutableStateOf(TextFieldValue("")) }
+    val coroutineScope = rememberCoroutineScope() // ✅ Add this
 
     LaunchedEffect(doctorId) {
         doctor = getDoctorByIdFromFirestore(doctorId)
@@ -96,12 +98,22 @@ fun RateDoctorScreen(
 
                 Button(
                     onClick = {
-                        doctor?.hoTen?.let { name ->
-                            submitRatingToFirestore(doctorId, selectedRating, comment.text, name)
+                        coroutineScope.launch {
+                            val patientName = getCurrentPatientName()
+                            val doctorName = doctor?.hoTen
+                            if (patientName != null && doctorName != null) {
+                                submitRatingToFirestore(
+                                    doctorId = doctorId,
+                                    rating = selectedRating,
+                                    comment = comment.text,
+                                    doctorName = doctorName,
+                                    patientName = patientName
+                                )
+                                isSubmitted = true
+                                comment = TextFieldValue("")
+                                selectedRating = 0
+                            }
                         }
-                        isSubmitted = true
-                        comment = TextFieldValue("")
-                        selectedRating = 0
                     },
                     enabled = selectedRating > 0 || comment.text.isNotBlank(),
                     shape = RoundedCornerShape(12.dp),
@@ -132,6 +144,7 @@ fun RateDoctorScreen(
     }
 }
 
+
 // ✅ Lấy dữ liệu bác sĩ theo documentId (chính là doctorId như "DL001")
 suspend fun getDoctorByIdFromFirestore(doctorId: String): Doctor? {
     return try {
@@ -148,15 +161,40 @@ suspend fun getDoctorByIdFromFirestore(doctorId: String): Doctor? {
 }
 
 // ✅ Gửi đánh giá lên Firestore
-fun submitRatingToFirestore(doctorId: String, rating: Int, comment: String, doctorName: String) {
+fun submitRatingToFirestore(
+    doctorId: String,
+    rating: Int,
+    comment: String,
+    doctorName: String,
+    patientName: String
+) {
     val ratingData = hashMapOf(
         "doctorId" to doctorId,
         "rating" to rating,
         "comment" to comment,
-        "doctorName" to doctorName
+        "doctorName" to doctorName,
+        "patientName" to patientName
     )
 
     FirebaseFirestore.getInstance()
         .collection("ratedoctor")
         .add(ratingData)
 }
+
+// Hàm lấy tên bệnh nhân dựa vào uid
+suspend fun getCurrentPatientName(): String? {
+    val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: return null
+
+    return try {
+        val snapshot = FirebaseFirestore.getInstance()
+            .collection("patients")
+            .document(uid)
+            .get()
+            .await()
+
+        snapshot.getString("hoTen")
+    } catch (e: Exception) {
+        null
+    }
+}
+

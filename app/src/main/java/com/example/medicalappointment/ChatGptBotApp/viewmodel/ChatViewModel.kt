@@ -24,7 +24,7 @@ class ChatViewModel : ViewModel() {
             )
         )
 
-        // Gọi API bất đồng bộ
+
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = RetrofitClient.api.createChatCompletion(request)

@@ -32,7 +32,8 @@ data class Rating(
     val doctorId: String = "",
     val doctorName: String = "",
     val rating: Int = 0,
-    val comment: String = ""
+    val comment: String = "",
+    val patientName: String =""
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,9 +72,10 @@ fun DoctorDetailScreen(
                     try {
                         val doctorId = doc.getString("doctorId") ?: ""
                         val doctorName = doc.getString("doctorName") ?: ""
+                        val patientName = doc.getString("patientName")?: ""
                         val rating = (doc.get("rating") as? Number)?.toInt() ?: 0
                         val comment = doc.getString("comment") ?: ""
-                        Rating(doctorId, doctorName, rating, comment)
+                        Rating(doctorId, doctorName, rating, comment, patientName)
                     } catch (e: Exception) {
                         Log.e("DoctorDetailScreen", "Lỗi khi đọc document: ${e.message}")
                         null
@@ -223,6 +225,13 @@ fun DoctorDetailScreen(
                             elevation = CardDefaults.cardElevation(8.dp)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
+                                Text(
+                                    "👤 ${rating.patientName}",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Color(0xFF1E88E5)
+                                )
+                                Spacer(Modifier.height(4.dp))
                                 Text(
                                     "⭐ ${rating.rating}",
                                     fontSize = 16.sp,

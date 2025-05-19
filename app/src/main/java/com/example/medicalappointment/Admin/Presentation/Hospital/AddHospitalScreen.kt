@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -30,6 +31,8 @@ import com.example.medicalappointment.Admin.Data.Repository.HospitalRepository
 
 import com.example.medicalappointment.Admin.Presentation.Home.AdminTopBar
 import com.example.medicalappointment.Admin.Presentation.Home.BottomNavigationBar
+import com.example.medicalappointment.Admin.Presentation.Home.DrawerItem
+import com.google.firebase.auth.FirebaseAuth
 
 import kotlinx.coroutines.launch
 
@@ -52,6 +55,9 @@ fun AddHospitalScreen(
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var uploadedImageUrl by remember { mutableStateOf("") }
 
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+
+
     LaunchedEffect(message) {
         message?.let {
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
@@ -69,148 +75,178 @@ fun AddHospitalScreen(
             imageUri = it
         }
     }
-    Scaffold(
-        topBar = {
-            AdminTopBar(userName = "Admin") {
-            }
-        },
-        bottomBar = {
-            BottomNavigationBar(navController)
-        },
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(padding)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Thêm bệnh viện",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(vertical = 12.dp)
-            )
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(6.dp),
-                shape = MaterialTheme.shapes.medium
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    OutlinedTextField(
-                        value = hospitalId,
-                        onValueChange = { hospitalId = it },
-                        label = { Text("Mã bệnh viện") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = tenBenhVien,
-                        onValueChange = { tenBenhVien = it },
-                        label = { Text("Tên bệnh viện") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = diaChi,
-                        onValueChange = { diaChi = it },
-                        label = { Text("Địa chỉ") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = sdt,
-                        onValueChange = { sdt = it },
-                        label = { Text("Số điện thoại") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = website,
-                        onValueChange = { website = it },
-                        label = { Text("Website") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    //Divider(modifier = Modifier.padding(vertical = 8.dp))
-
-                    if (imageUri == null) {
-                        OutlinedTextField(
-                            value = "",
-                            onValueChange = {}, // Không cho thay đổi giá trị
-                            label = { Text("Ảnh bệnh viện") },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { launcher.launch("image/*") }, // Bấm vào cả ô để chọn ảnh
-                            readOnly = true,
-                            //enabled = false, // Vô hiệu hóa nhập liệu
-                            trailingIcon = {
-                                IconButton(
-                                    onClick = { launcher.launch("image/*") }
-                                ) {
-                                    Icon(imageVector = Icons.Default.AddPhotoAlternate, contentDescription = "Chọn ảnh")
-                                }
-                            }
-                        )
-                    } else {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            AsyncImage(
-                                model = imageUri,
-                                contentDescription = "Ảnh bệnh viện",
-                                modifier = Modifier
-                                    .size(150.dp)
-                                    .clip(MaterialTheme.shapes.medium)
-                            )
-                            IconButton(
-                                onClick = { imageUri = null }
-                            ) {
-                                Icon(imageVector = Icons.Default.Delete, contentDescription = "Xóa ảnh")
-                            }
-                        }
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Text("Menu", modifier = Modifier.padding(16.dp), fontWeight = FontWeight.Bold)
+                Divider()
+                DrawerItem("Bệnh viện") { navController.navigate("home_hospital") }
+                DrawerItem("Bác sĩ") { navController.navigate("home_doctor") }
+                DrawerItem("Bệnh nhân") { navController.navigate("home_patient") }
+                DrawerItem("Chuyên khoa") { navController.navigate("home_specialty") }
+                DrawerItem("Phân quyền") { navController.navigate("decentralization") }
+                DrawerItem("Quản lý lịch hẹn") { /* navController.navigate("appointment_screen") */ }
+                DrawerItem("Đăng xuất") {
+                    FirebaseAuth.getInstance().signOut()
+                    Toast.makeText(context, "Đăng xuất thành công!", Toast.LENGTH_SHORT).show()
+                    navController.navigate("signin") {
+                        popUpTo("admin_home") { inclusive = true }
                     }
-
                 }
             }
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                AdminTopBar(userName = "Admin") {
+                    scope.launch { drawerState.open() }
+                }
+            },
+            bottomBar = {
+                BottomNavigationBar(navController)
+            },
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(padding)
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Thêm bệnh viện",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(vertical = 12.dp)
+                )
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(6.dp),
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = hospitalId,
+                            onValueChange = { hospitalId = it },
+                            label = { Text("Mã bệnh viện") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = tenBenhVien,
+                            onValueChange = { tenBenhVien = it },
+                            label = { Text("Tên bệnh viện") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = diaChi,
+                            onValueChange = { diaChi = it },
+                            label = { Text("Địa chỉ") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = sdt,
+                            onValueChange = { sdt = it },
+                            label = { Text("Số điện thoại") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = website,
+                            onValueChange = { website = it },
+                            label = { Text("Website") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
 
-            Button(
-                onClick = {
-                    if (hospitalId.isBlank() || tenBenhVien.isBlank()) {
-                        Toast.makeText(context, "Vui lòng điền mã và tên!", Toast.LENGTH_SHORT)
-                            .show()
-                        return@Button
-                    }
+                        //Divider(modifier = Modifier.padding(vertical = 8.dp))
 
-                    scope.launch {
-                        if (imageUri != null) {
-                            val url = viewModel.uploadImage(imageUri!!, hospitalId)
-                            uploadedImageUrl = url ?: ""
+                        if (imageUri == null) {
+                            OutlinedTextField(
+                                value = "",
+                                onValueChange = {}, // Không cho thay đổi giá trị
+                                label = { Text("Ảnh bệnh viện") },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { launcher.launch("image/*") }, // Bấm vào cả ô để chọn ảnh
+                                readOnly = true,
+                                //enabled = false, // Vô hiệu hóa nhập liệu
+                                trailingIcon = {
+                                    IconButton(
+                                        onClick = { launcher.launch("image/*") }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.AddPhotoAlternate,
+                                            contentDescription = "Chọn ảnh"
+                                        )
+                                    }
+                                }
+                            )
+                        } else {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                AsyncImage(
+                                    model = imageUri,
+                                    contentDescription = "Ảnh bệnh viện",
+                                    modifier = Modifier
+                                        .size(150.dp)
+                                        .clip(MaterialTheme.shapes.medium)
+                                )
+                                IconButton(
+                                    onClick = { imageUri = null }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Xóa ảnh"
+                                    )
+                                }
+                            }
                         }
 
-                        val hospital = Hospital(
-                            id = hospitalId,
-                            tenBV = tenBenhVien,
-                            diaChi = diaChi,
-                            sdt = sdt,
-                            website = website,
-                            anh = uploadedImageUrl
-                        )
-                        viewModel.saveHospital(hospital)
-                        navController.popBackStack()
                     }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                shape = MaterialTheme.shapes.medium
-            ) {
-                Text("Lưu bệnh viện", style = MaterialTheme.typography.labelLarge)
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    onClick = {
+                        if (hospitalId.isBlank() || tenBenhVien.isBlank()) {
+                            Toast.makeText(context, "Vui lòng điền mã và tên!", Toast.LENGTH_SHORT)
+                                .show()
+                            return@Button
+                        }
+
+                        scope.launch {
+                            if (imageUri != null) {
+                                val url = viewModel.uploadImage(imageUri!!, hospitalId)
+                                uploadedImageUrl = url ?: ""
+                            }
+
+                            val hospital = Hospital(
+                                id = hospitalId,
+                                tenBV = tenBenhVien,
+                                diaChi = diaChi,
+                                sdt = sdt,
+                                website = website,
+                                anh = uploadedImageUrl
+                            )
+                            viewModel.saveHospital(hospital)
+                            navController.popBackStack()
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Text("Lưu bệnh viện", style = MaterialTheme.typography.labelLarge)
+                }
             }
         }
     }
