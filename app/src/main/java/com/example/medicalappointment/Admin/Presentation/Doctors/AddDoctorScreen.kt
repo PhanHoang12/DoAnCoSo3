@@ -33,14 +33,24 @@ import com.example.medicalappointment.Admin.Presentation.Home.AdminTopBar
 import com.example.medicalappointment.Admin.Presentation.Home.BottomNavigationBar
 import com.example.medicalappointment.Admin.Presentation.Home.DrawerItem
 import com.example.medicalappointment.Admin.Presentation.Hospital.AddHospitalScreen
+import com.example.medicalappointment.Admin.Presentation.Specialty.SpecialtyDropdown
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import com.example.medicalapp.Admin.Data.Model.Specialty
+import com.example.medicalapp.Admin.Presentation.Specialty.SpecialtyViewModel
+import com.example.medicalappointment.Admin.Data.Repository.SpecialtyRepository
+import com.example.medicalappointment.Admin.Presentation.Specialty.SpecialtyViewModelFactory
+
 
 @Composable
 fun AddDoctorScreen(
     navController: NavController,
-    viewModel: DoctorViewModel = viewModel(factory = DoctorViewModelFactory(DoctorRepository())
-    )) {
+    viewModel: DoctorViewModel = viewModel(factory = DoctorViewModelFactory(DoctorRepository())),
+    specialtyViewModel: SpecialtyViewModel = viewModel(factory = SpecialtyViewModelFactory(
+        SpecialtyRepository()))
+) {
     val context = LocalContext.current
     val message by viewModel.message.collectAsState()
 
@@ -52,7 +62,8 @@ fun AddDoctorScreen(
 
     var doctorId by remember { mutableStateOf("") }
     var hoTen by remember { mutableStateOf("") }
-    var chuyenKhoa by remember { mutableStateOf("") }
+//    var chuyenKhoa by remember { mutableStateOf("") }
+    var chuyenKhoa by remember { mutableStateOf<Specialty?>(null) }
     var noiCongTac by remember { mutableStateOf("") }
     var tieuSu by remember { mutableStateOf("") }
     var kinhNghiem by remember { mutableStateOf("") }
@@ -67,6 +78,9 @@ fun AddDoctorScreen(
     }
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    val specialties by specialtyViewModel.specialtys.collectAsState()
+
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -124,11 +138,16 @@ fun AddDoctorScreen(
                     label = { Text("Họ tên") },
                     modifier = Modifier.fillMaxWidth()
                 )
-                OutlinedTextField(
-                    value = chuyenKhoa,
-                    onValueChange = { chuyenKhoa = it },
-                    label = { Text("Chuyên khoa") },
-                    modifier = Modifier.fillMaxWidth()
+//                OutlinedTextField(
+//                    value = chuyenKhoa,
+//                    onValueChange = { chuyenKhoa = it },
+//                    label = { Text("Chuyên khoa") },
+//                    modifier = Modifier.fillMaxWidth()
+//                )
+                SpecialtyDropdown(
+                    specialties = specialties,
+                    selectedSpecialty = chuyenKhoa,
+                    onSpecialtySelected = { chuyenKhoa = it }
                 )
                 OutlinedTextField(
                     value = noiCongTac,
@@ -218,7 +237,7 @@ fun AddDoctorScreen(
                 Button(
                     onClick = {
                         // Kiểm tra các trường input
-                        if (doctorId.isBlank() || hoTen.isBlank() || chuyenKhoa.isBlank() || kinhNghiem.isBlank() || danhGia.isBlank()) {
+                        if (doctorId.isBlank() || hoTen.isBlank() || kinhNghiem.isBlank() || danhGia.isBlank()) {
                             Toast.makeText(
                                 context,
                                 "Vui lòng điền đầy đủ thông tin bác sĩ!",
@@ -245,7 +264,7 @@ fun AddDoctorScreen(
                         val bacSi = Doctor(
                             doctorId = doctorId,
                             hoTen = hoTen,
-                            chuyenKhoa = chuyenKhoa,
+                            chuyenKhoa = chuyenKhoa?.name?: "",
                             diaChi = noiCongTac,
                             tieuSu = tieuSu,
                             kinhNghiem = kinhNghiemValue,

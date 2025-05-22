@@ -46,7 +46,7 @@ import com.example.medicalappointment.BenhNhan.Presentation.Patient.RateDoctorSc
 import com.example.medicalappointment.BenhNhan.Presentation.hospital.HospitalDetailScreen
 import com.example.medicalappointment.BenhNhan.Presentation.Patient.Scheduled
 import com.example.medicalappointment.BenhNhan.Presentation.booking.SuccessScreen
-import com.example.medicalappointment.benhnhan.presentation.SearchResultScreen
+import com.example.medicalappointment.Benhnhan.Presentation.SearchResultScreen
 import com.example.medicalappointment.Bacsi.Presentation.DoctorProfileScreen
 import com.example.medicalappointment.Bacsi.Presentation.DoctorScreen
 import com.example.medicalappointment.BenhNhan.Presentation.Notification.NotificationScreen
