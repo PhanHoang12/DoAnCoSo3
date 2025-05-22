@@ -1,6 +1,6 @@
 package com.example.medicalappointment.Admin.Presentation.Patient
 
-import androidx.compose.foundation.Image
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -61,7 +61,6 @@ fun SeePatientScreen(
                     .padding(padding)
                     .padding(16.dp)
             ) {
-                // Hiển thị ký tự đầu của tên bệnh nhân trong một hình tròn
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier

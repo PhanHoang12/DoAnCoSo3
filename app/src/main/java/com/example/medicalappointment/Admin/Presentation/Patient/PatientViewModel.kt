@@ -24,7 +24,6 @@ class PatientViewModel(private val repository: PatientRepository) : ViewModel() 
             _selectedPatient.value = it
         }
     }
-            // Lấy danh sách bệnh nhân từ Firebase
     fun fetchPatient() {
         viewModelScope.launch {
             try {
@@ -35,7 +34,6 @@ class PatientViewModel(private val repository: PatientRepository) : ViewModel() 
         }
     }
 
-    // Xóa bệnh nhân khỏi Firestore
     fun deletePatient(userId: String) {
         viewModelScope.launch {
             try {

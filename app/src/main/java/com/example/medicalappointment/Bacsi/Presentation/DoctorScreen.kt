@@ -18,13 +18,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.medicalappointment.BenhNhan.Presentation.Patient.Booking
 import com.example.medicalappointment.BenhNhan.Presentation.booking.BookingViewModel
 import com.google.firebase.auth.FirebaseAuth
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun DoctorScreen(
@@ -35,12 +40,76 @@ fun DoctorScreen(
     val bookings by viewModel.bookingList
     val context = LocalContext.current
 
-    // Load dữ liệu khi vào màn hình
+    var showDialog by remember { mutableStateOf(false) }
+    var rejectionReason by remember { mutableStateOf("") }
+    var selectedBooking by remember { mutableStateOf<Booking?>(null) }
+
+
     LaunchedEffect(Unit) {
         viewModel.loadBookings(doctorId)
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
+
+        // Lí do từ chối của doctor
+        if (showDialog && selectedBooking != null) {
+            androidx.compose.material3.AlertDialog(
+                onDismissRequest = {
+                    showDialog = false
+                    rejectionReason = ""
+                    selectedBooking = null
+                },
+                title = {
+                    Text("Nhập lý do từ chối")
+                },
+                text = {
+                    androidx.compose.material3.OutlinedTextField(
+                        value = rejectionReason,
+                        onValueChange = { rejectionReason = it },
+                        label = { Text("Lý do") },
+                        singleLine = false,
+                        maxLines = 3,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            selectedBooking?.let {
+                                viewModel.rejectBooking(
+                                    it.BookingID,
+                                    it.IdBenhNhan,
+                                    rejectionReason,
+                                    onSuccess = {
+                                        Toast.makeText(context, "Đã từ chối lịch hẹn", Toast.LENGTH_SHORT).show()
+                                        showDialog = false
+                                        rejectionReason = ""
+                                        selectedBooking = null
+                                    },
+                                    onFailure = { errorMsg ->
+                                        Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                            }
+                        }
+                    ) {
+                        Text("Gửi")
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = {
+                            showDialog = false
+                            rejectionReason = ""
+                            selectedBooking = null
+                        }
+                    ) {
+                        Text("Huỷ")
+                    }
+                }
+            )
+        }
+
         DoctorTopBar(doctorId = doctorId, onMessageClick = {
             // TODO: mở màn hình chat
         },
@@ -70,50 +139,58 @@ fun DoctorScreen(
                         Text(text = "⏰ Giờ khám: ${booking.gioKham}")
                         Text(text = "📞 SĐT: ${booking.soDienThoai}")
                         Text(text = "📌 Trạng thái: ${booking.trangThai}")
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            // Xác nhận lịch hẹn
-                            IconButton(onClick = {
-                                viewModel.confirmBooking(
-                                    booking.BookingID,
-                                    booking.IdBenhNhan,
-                                    onSuccess = {
-                                        Toast.makeText(context, "Đã xác nhận lịch hẹn!", Toast.LENGTH_SHORT).show()
-                                    },
-                                    onFailure = { errorMsg ->
-                                        Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
-                                    }
-                                )
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.Check,
-                                    contentDescription = "Xác nhận",
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
-
-                            IconButton(onClick = {
-                                viewModel.rejectBooking(
-                                    booking.BookingID,
-                                    booking.IdBenhNhan,
-                                    onSuccess = {
-                                        Toast.makeText(context, "Đã từ chối lịch hẹn", Toast.LENGTH_SHORT).show()
-                                    },
-                                    onFailure = { errorMsg ->
-                                        Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
-                                    }
-                                )
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = "Từ chối",
-                                    tint = Color.Red
-                                )
+                        if(booking.trangThai != "Đã xác nhận" && booking.trangThai!= "Đã từ chối") {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                // Xác nhận lịch hẹn
+                                IconButton(onClick = {
+                                    viewModel.confirmBooking(
+                                        booking.BookingID,
+                                        booking.IdBenhNhan,
+                                        onSuccess = {
+                                            Toast.makeText(
+                                                context,
+                                                "Đã xác nhận lịch hẹn!",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        },
+                                        onFailure = { errorMsg ->
+                                            Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT)
+                                                .show()
+                                        }
+                                    )
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = "Xác nhận",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                                // Từ chối lịch hẹn
+                                IconButton(onClick = {
+//                                viewModel.rejectBooking(
+//                                    booking.BookingID,
+//                                    booking.IdBenhNhan,
+//                                    onSuccess = {
+//                                        Toast.makeText(context, "Đã từ chối lịch hẹn", Toast.LENGTH_SHORT).show()
+//                                    },
+//                                    onFailure = { errorMsg ->
+//                                        Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
+//                                    }
+//                                )
+                                    selectedBooking = booking
+                                    showDialog = true
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "Từ chối",
+                                        tint = Color.Red
+                                    )
+                                }
                             }
                         }
                     }
@@ -121,7 +198,7 @@ fun DoctorScreen(
             }
         }
 
-        Spacer(modifier = Modifier.weight(0.1f)) // Empty space to push button to bottom
+        Spacer(modifier = Modifier.weight(0.1f))
 
         Button(
             onClick = {

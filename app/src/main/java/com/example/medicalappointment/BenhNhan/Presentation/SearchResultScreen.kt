@@ -137,7 +137,7 @@ fun SearchResultScreen(
             }
 
             item {
-                Spacer(modifier = Modifier.height(40.dp)) // thêm không gian cuối
+                Spacer(modifier = Modifier.height(40.dp))
             }
         }
     }

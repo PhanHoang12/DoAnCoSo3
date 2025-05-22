@@ -140,7 +140,6 @@ fun HomeScreen(navController: NavHostController?) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Ô tìm kiếm
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
@@ -155,7 +154,7 @@ fun HomeScreen(navController: NavHostController?) {
                             })
                     },
                     shape = RoundedCornerShape(50.dp),
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 6.sp),
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 0.sp),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions (

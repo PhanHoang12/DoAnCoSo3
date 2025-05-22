@@ -71,7 +71,6 @@ class DoctorRepository {
             val imageRef = storageRef.child("doctor_images/$doctorId.jpg")
             imageRef.putFile(imageUri).await()
 
-            // Lấy URL ảnh sau khi tải lên thành công
             val downloadUrl = imageRef.downloadUrl.await().toString()
             Log.d("FirebaseStorage", "✅ Ảnh tải lên thành công: $downloadUrl")
             downloadUrl

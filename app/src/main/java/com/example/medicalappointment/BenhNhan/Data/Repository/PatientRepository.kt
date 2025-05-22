@@ -36,7 +36,6 @@ class PatientRepository {
                 storageRef.putFile(avatarUri).await()
                 storageRef.downloadUrl.await().toString()
             } else {
-                // If no avatar is provided, use the existing avatar URL
                 currentAvatarUrl
             }
 

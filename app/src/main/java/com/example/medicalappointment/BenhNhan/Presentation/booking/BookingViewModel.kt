@@ -88,6 +88,7 @@ class BookingViewModel : ViewModel() {
     fun rejectBooking(
         BookingID: String,
         patientId: String,
+        reason: String,
         onSuccess: () -> Unit = {},
         onFailure: (String) -> Unit = {}
     ) {
@@ -100,7 +101,7 @@ class BookingViewModel : ViewModel() {
                 val notification = Notification(
                     userId = patientId,
                     title = "Lịch hẹn bị từ chối",
-                    message = "Bác sĩ đã từ chối lịch hẹn của bạn.",
+                    message = "Bác sĩ đã từ chối lịch hẹn của bạn.\n Lý do: $reason",
                     timestamp = System.currentTimeMillis(),
                     isRead = false
                 )

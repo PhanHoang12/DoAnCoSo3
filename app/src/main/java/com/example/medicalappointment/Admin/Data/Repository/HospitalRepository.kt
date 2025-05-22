@@ -58,7 +58,6 @@ class HospitalRepository() {
         }
     }
 
-    // 📌 Cập nhật bệnh viện
     suspend fun updateHospital(hospital: Hospital): Boolean {
         return try {
             if (hospital.id.isBlank()) {
@@ -76,7 +75,7 @@ class HospitalRepository() {
     }
 
 
-    // 📌 Xóa bệnh viện
+
     suspend fun deleteHospital(hospitalId: String): Boolean {
         return try {
             hospitalCollection.document(hospitalId).delete().await()
