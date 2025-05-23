@@ -138,17 +138,14 @@ fun AddDoctorScreen(
                     label = { Text("Họ tên") },
                     modifier = Modifier.fillMaxWidth()
                 )
-//                OutlinedTextField(
-//                    value = chuyenKhoa,
-//                    onValueChange = { chuyenKhoa = it },
-//                    label = { Text("Chuyên khoa") },
-//                    modifier = Modifier.fillMaxWidth()
-//                )
-                SpecialtyDropdown(
-                    specialties = specialties,
-                    selectedSpecialty = chuyenKhoa,
-                    onSpecialtySelected = { chuyenKhoa = it }
-                )
+                Column (modifier = Modifier.fillMaxWidth()) {
+                    Text("Chuyên khoa", style = MaterialTheme.typography.labelLarge)
+                    SpecialtyDropdown(
+                        specialties = specialties,
+                        selectedSpecialty = chuyenKhoa,
+                        onSpecialtySelected = { chuyenKhoa = it }
+                    )
+                }
                 OutlinedTextField(
                     value = noiCongTac,
                     onValueChange = { noiCongTac = it },
@@ -236,6 +233,14 @@ fun AddDoctorScreen(
 
                 Button(
                     onClick = {
+                        if (chuyenKhoa == null) {
+                            Toast.makeText(
+                                context,
+                                "Vui lòng chọn chuyên khoa!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@Button
+                        }
                         // Kiểm tra các trường input
                         if (doctorId.isBlank() || hoTen.isBlank() || kinhNghiem.isBlank() || danhGia.isBlank()) {
                             Toast.makeText(

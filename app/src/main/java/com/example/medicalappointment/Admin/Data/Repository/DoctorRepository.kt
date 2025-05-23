@@ -14,6 +14,19 @@ class DoctorRepository {
     private val storageRef = FirebaseStorage.getInstance().reference
 
 
+    suspend fun calculateAverageRating(doctorId: String): Double{
+        val snapshot = FirebaseFirestore.getInstance()
+            .collection("ratedoctor")
+            .whereEqualTo("doctorId", doctorId)
+            .get()
+            .await()
+
+        val ratings = snapshot.documents.mapNotNull {
+            (it.get("rating") as? Number)?.toDouble()
+        }
+        return if (ratings.isNotEmpty()) ratings.average() else 0.0
+    }
+
 
     suspend fun getDoctor(): List<Doctor> {
         return try {

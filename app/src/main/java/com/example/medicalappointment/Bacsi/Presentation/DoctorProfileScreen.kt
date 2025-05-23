@@ -13,14 +13,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.medicalapp.Admin.Data.Model.Doctor
+import com.example.medicalapp.Admin.Data.Model.Specialty
+import com.example.medicalapp.Admin.Presentation.Specialty.SpecialtyViewModel
+import com.example.medicalappointment.Admin.Data.Repository.SpecialtyRepository
+import com.example.medicalappointment.Admin.Presentation.Specialty.SpecialtyDropdown
+import com.example.medicalappointment.Admin.Presentation.Specialty.SpecialtyViewModelFactory
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import java.util.*
@@ -28,14 +35,16 @@ import java.util.*
 @Composable
 fun DoctorProfileScreen(
     doctorId: String,
-    navController: NavHostController
+    navController: NavHostController,
+    specialtyViewModel: SpecialtyViewModel = viewModel(factory = SpecialtyViewModelFactory(
+        SpecialtyRepository()))
 ) {
     val context = LocalContext.current
     val db = FirebaseFirestore.getInstance()
     val storage = FirebaseStorage.getInstance()
 
     var hoTen by remember { mutableStateOf("") }
-    var chuyenKhoa by remember { mutableStateOf("") }
+    var chuyenKhoa by remember { mutableStateOf<Specialty?>(null) }
     var diaChi by remember { mutableStateOf("") }
     var tieuSu by remember { mutableStateOf("") }
     var kinhNghiem by remember { mutableStateOf("") }
@@ -46,20 +55,26 @@ fun DoctorProfileScreen(
     var website by remember { mutableStateOf("") }
     var uploading by remember { mutableStateOf(false) }
 
-    LaunchedEffect(doctorId) {
-        db.collection("doctors").document(doctorId).get().addOnSuccessListener { doc ->
-            val doctor = doc.toObject(Doctor::class.java)
-            doctor?.let {
-                hoTen = it.hoTen
-                chuyenKhoa = it.chuyenKhoa
-                diaChi = it.diaChi
-                tieuSu = it.tieuSu
-                kinhNghiem = it.kinhNghiem.toString()
-                danhGia = it.danhGia.toString()
-                benhNhanDaKham = it.benhNhanDaKham.toString()
-                sdt = it.sdt
-                anh = it.anh
-                website = it.website
+    val specialties by specialtyViewModel.specialtys.collectAsState()
+
+
+    LaunchedEffect(doctorId, specialties) {
+        if (specialties.isNotEmpty()) {
+            db.collection("doctors").document(doctorId).get().addOnSuccessListener { doc ->
+                val doctor = doc.toObject(Doctor::class.java)
+                doctor?.let {
+                    hoTen = it.hoTen
+//                chuyenKhoa = it.chuyenKhoa
+                    chuyenKhoa = specialties.find { sp -> sp.name == it.chuyenKhoa }
+                    diaChi = it.diaChi
+                    tieuSu = it.tieuSu
+                    kinhNghiem = it.kinhNghiem.toString()
+                    danhGia = it.danhGia.toString()
+                    benhNhanDaKham = it.benhNhanDaKham.toString()
+                    sdt = it.sdt
+                    anh = it.anh
+                    website = it.website
+                }
             }
         }
     }
@@ -124,7 +139,12 @@ fun DoctorProfileScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
         ProfileTextField("Họ tên", hoTen) { hoTen = it }
-        ProfileTextField("Chuyên khoa", chuyenKhoa) { chuyenKhoa = it }
+//        ProfileTextField("Chuyên khoa", chuyenKhoa) { chuyenKhoa = it }
+        SpecialtyDropdown(
+            specialties = specialties,
+            selectedSpecialty = chuyenKhoa,
+            onSpecialtySelected = { chuyenKhoa = it }
+        )
         ProfileTextField("Địa chỉ", diaChi) { diaChi = it }
         ProfileTextField("Tiểu sử", tieuSu, singleLine = false) { tieuSu = it }
         ProfileTextField("Kinh nghiệm (năm)", kinhNghiem) { kinhNghiem = it }
@@ -139,7 +159,8 @@ fun DoctorProfileScreen(
             onClick = {
                 val updatedDoctor: Map<String, Any?> = mapOf(
                     "hoTen" to hoTen,
-                    "chuyenKhoa" to chuyenKhoa,
+//                    "chuyenKhoa" to chuyenKhoa,
+                    "chuyenKhoa" to (chuyenKhoa?.name ?: ""),
                     "diaChi" to diaChi,
                     "tieuSu" to tieuSu,
                     "kinhNghiem" to (kinhNghiem.trim().toIntOrNull() ?: 0),

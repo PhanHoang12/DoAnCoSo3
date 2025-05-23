@@ -31,12 +31,20 @@ fun DoctorsBySpecialtyScreen(
 ) {
     val doctorRepository = remember { DoctorRepository() }
     var doctors by remember { mutableStateOf<List<Doctor>>(emptyList()) }
+//    var averageRating by remember { mutableStateOf(0f) }
 
     LaunchedEffect(specialtyName) {
         val allDoctors = doctorRepository.getDoctor()
-        doctors = allDoctors.filter {
+        val filteredDoctors = allDoctors.filter {
             it.chuyenKhoa.equals(specialtyName, ignoreCase = true)
         }
+
+        val doctorsWithRatings = filteredDoctors.map { doctor ->
+            val avgRating = doctorRepository.calculateAverageRating(doctor.doctorId)
+            doctor.copy(danhGia = avgRating)
+        }
+
+        doctors = doctorsWithRatings
     }
 
     Scaffold(
@@ -120,7 +128,12 @@ fun DoctorItem(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFFFC107))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Đánh giá: ${doctor.danhGia ?: "Chưa có"} ⭐")
+                        Text(
+                            text = if (doctor.danhGia != null && doctor.danhGia > 0)
+                                "Đánh giá: %.1f ⭐".format(doctor.danhGia)
+                            else
+                                "Chưa có đánh giá"
+                        )
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {

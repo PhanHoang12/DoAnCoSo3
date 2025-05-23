@@ -28,7 +28,7 @@ fun RateDoctorScreen(
     var selectedRating by remember { mutableStateOf(0) }
     var isSubmitted by remember { mutableStateOf(false) }
     var comment by remember { mutableStateOf(TextFieldValue("")) }
-    val coroutineScope = rememberCoroutineScope() // ✅ Add this
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(doctorId) {
         doctor = getDoctorByIdFromFirestore(doctorId)

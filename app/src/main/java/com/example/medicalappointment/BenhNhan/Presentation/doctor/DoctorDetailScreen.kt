@@ -45,17 +45,8 @@ fun DoctorDetailScreen(
     modifier: Modifier = Modifier
 ) {
     var ratings by remember { mutableStateOf<List<Rating>>(emptyList()) }
+    var averageRating by remember { mutableStateOf(0f) }
 
-//    LaunchedEffect(Unit) {
-//        FirebaseFirestore.getInstance()
-//            .collection("ratedoctor")
-//            .whereEqualTo("doctorId", doctor.doctorId)
-//            .get()
-//            .addOnSuccessListener { documents ->
-//                val list = documents.mapNotNull { it.toObject(Rating::class.java) }
-//                ratings = list
-//            }
-//    }
     LaunchedEffect(doctor.hoTen) {
         if (doctor.hoTen.isNotBlank()) {
             try {
@@ -83,6 +74,11 @@ fun DoctorDetailScreen(
                 }
 
                 ratings = list
+                averageRating = if(list.isNotEmpty()){
+                    list.map { it.rating }.average().toFloat()
+                } else{
+                    0f
+                }
                 Log.d("DoctorDetailScreen", "Tải thành công ${ratings.size} đánh giá")
             } catch (e: Exception) {
                 Log.e("DoctorDetailScreen", "Không thể tải đánh giá: ${e.message}")
@@ -155,7 +151,7 @@ fun DoctorDetailScreen(
                                 )
                                 Text("Khoa: ${it.chuyenKhoa}", fontSize = 16.sp, color = Color.Gray)
                                 Text(
-                                    "⭐ ${it.danhGia} | ${doctor.kinhNghiem} năm kinh nghiệm",
+                                    "⭐ ${"%.1f".format(averageRating)} | ${doctor.kinhNghiem} năm kinh nghiệm",
                                     fontSize = 14.sp,
                                     color = Color(0xFF777777)
                                 )

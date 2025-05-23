@@ -4,5 +4,5 @@ package com.example.medicalappointment.ChatGptBotApp.utils
 
 object Constants {
     const val BASE_URL = "https://openrouter.ai/"
-    const val API_KEY = "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"
+    const val API_KEY = "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"
 }

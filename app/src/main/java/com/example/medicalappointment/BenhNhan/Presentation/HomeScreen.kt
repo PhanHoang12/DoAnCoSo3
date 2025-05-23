@@ -154,7 +154,7 @@ fun HomeScreen(navController: NavHostController?) {
                             })
                     },
                     shape = RoundedCornerShape(50.dp),
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 0.sp),
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 20.sp),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
                     keyboardActions = KeyboardActions (

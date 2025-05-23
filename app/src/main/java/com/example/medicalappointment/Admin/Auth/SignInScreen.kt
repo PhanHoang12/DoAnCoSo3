@@ -58,7 +58,7 @@ fun SignInScreen(navController: NavController) {
             hasNavigated = true
             val uid = currentUser!!.uid
 
-            val testDoctorId = "DL001"
+            val testDoctorId = "HP01"
             FirebaseFirestore.getInstance()
                 .collection("users").document(uid).get()
                 .addOnSuccessListener { doc ->
