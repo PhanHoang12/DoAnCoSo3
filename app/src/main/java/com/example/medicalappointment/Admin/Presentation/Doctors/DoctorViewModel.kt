@@ -123,6 +123,14 @@ class DoctorViewModel(private val repository: DoctorRepository) : ViewModel() {
         }
     }
 
+    fun getAverageRating(doctorId: String, onResult: (Double) -> Unit) {
+        viewModelScope.launch {
+            val rating = repository.calculateAverageRating(doctorId)
+            onResult(rating)
+        }
+    }
+
+
 
 
 }

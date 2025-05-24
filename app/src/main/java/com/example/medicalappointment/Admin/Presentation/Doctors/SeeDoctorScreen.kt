@@ -16,7 +16,6 @@ import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -43,18 +42,18 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import com.example.medicalappointment.Admin.Presentation.Home.AdminTopBar
 import com.example.medicalappointment.Admin.Presentation.Home.BottomNavigationBar
 import com.example.medicalappointment.Admin.Presentation.Home.DrawerItem
-import kotlinx.coroutines.launch
-import androidx.compose.material3.*
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.LocalContext
 import com.google.firebase.auth.FirebaseAuth
+
+import androidx.compose.runtime.setValue
+
 
 @Composable
 fun SeeDoctorScreen(
@@ -67,14 +66,17 @@ fun SeeDoctorScreen(
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    var averageRating by remember { mutableStateOf<Double?>(null) }
 
     // Lấy thông tin bác sĩ khi doctorId thay đổi
     LaunchedEffect(doctorId) {
         viewModel.getDoctorById(doctorId)
+        viewModel.getAverageRating(doctorId) {
+            averageRating = it
+        }
     }
 
-    val PrimaryBlue = Color(0xFF009DFE)
-    val HeaderBackground = Color(0xFFE0F4FF)
+
 
     // ModalNavigationDrawer sẽ nằm bên ngoài AdminTopBar
     ModalNavigationDrawer(
@@ -237,7 +239,12 @@ fun SeeDoctorScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text("Đánh giá:", fontWeight = FontWeight.Bold)
-                            Text("${doc.danhGia}")
+                            if(averageRating !=null && averageRating!! >0){
+                                Text(text = "%.1f ⭐".format(averageRating))
+
+                            } else{
+                                Text("Chưa có đánh giá")
+                            }
                         }
                     }
                 }

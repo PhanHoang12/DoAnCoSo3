@@ -28,6 +28,7 @@ class DoctorRepository {
     }
 
 
+
     suspend fun getDoctor(): List<Doctor> {
         return try {
             val snapshot = doctorCollection.get().await()
@@ -48,7 +49,7 @@ class DoctorRepository {
             "diaChi" to doctor.diaChi,
             "tieuSu" to doctor.tieuSu,
             "kinhNghiem" to doctor.kinhNghiem,
-            "danhGia" to doctor.danhGia,
+//            "danhGia" to doctor.danhGia,
             "benhNhanDaKham" to doctor.benhNhanDaKham,
             "sdt" to doctor.sdt,
             "website" to doctor.website,
@@ -79,22 +80,9 @@ class DoctorRepository {
 
 
 
-    private suspend fun uploadImageToFirebase(imageUri: Uri, doctorId: String): String? {
-        return try {
-            val imageRef = storageRef.child("doctor_images/$doctorId.jpg")
-            imageRef.putFile(imageUri).await()
-
-            val downloadUrl = imageRef.downloadUrl.await().toString()
-            Log.d("FirebaseStorage", "✅ Ảnh tải lên thành công: $downloadUrl")
-            downloadUrl
-        } catch (e: Exception) {
-            Log.e("FirebaseStorage", "❌ Lỗi khi tải ảnh lên Firebase Storage", e)
-            null
-        }
-    }
-
     suspend fun getDoctorById(doctorId: String): Doctor? {
         val snapshot = firestore.collection("doctors").document(doctorId).get().await()
-        return snapshot.toObject(Doctor::class.java)
+        return snapshot.toObject(Doctor::class.java)?.copy(doctorId = snapshot.id)
     }
+
 }

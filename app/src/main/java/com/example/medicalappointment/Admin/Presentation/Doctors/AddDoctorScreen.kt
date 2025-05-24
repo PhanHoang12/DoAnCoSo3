@@ -62,12 +62,10 @@ fun AddDoctorScreen(
 
     var doctorId by remember { mutableStateOf("") }
     var hoTen by remember { mutableStateOf("") }
-//    var chuyenKhoa by remember { mutableStateOf("") }
     var chuyenKhoa by remember { mutableStateOf<Specialty?>(null) }
     var noiCongTac by remember { mutableStateOf("") }
     var tieuSu by remember { mutableStateOf("") }
     var kinhNghiem by remember { mutableStateOf("") }
-    var danhGia by remember { mutableStateOf("") }
     var benhNhanDaKham by remember { mutableStateOf("") }
     var sdt by remember { mutableStateOf("") }
     var website by remember { mutableStateOf("") }
@@ -165,12 +163,6 @@ fun AddDoctorScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
-                    value = danhGia,
-                    onValueChange = { danhGia = it },
-                    label = { Text("Đánh giá (0-5)") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                OutlinedTextField(
                     value = benhNhanDaKham,
                     onValueChange = { benhNhanDaKham = it },
                     label = { Text("Bệnh nhân đã khám") },
@@ -242,7 +234,7 @@ fun AddDoctorScreen(
                             return@Button
                         }
                         // Kiểm tra các trường input
-                        if (doctorId.isBlank() || hoTen.isBlank() || kinhNghiem.isBlank() || danhGia.isBlank()) {
+                        if (doctorId.isBlank() || hoTen.isBlank() || kinhNghiem.isBlank() ) {
                             Toast.makeText(
                                 context,
                                 "Vui lòng điền đầy đủ thông tin bác sĩ!",
@@ -253,7 +245,6 @@ fun AddDoctorScreen(
 
                         val kinhNghiemValue = kinhNghiem.toIntOrNull()
                         val benhNhanValue = benhNhanDaKham.toIntOrNull()
-                        val danhGiaValue = danhGia.toDoubleOrNull()?.coerceIn(0.0, 5.0) ?: 0.0
                         if (kinhNghiemValue == null || benhNhanValue == null) {
                             Toast.makeText(
                                 context,
@@ -273,14 +264,12 @@ fun AddDoctorScreen(
                             diaChi = noiCongTac,
                             tieuSu = tieuSu,
                             kinhNghiem = kinhNghiemValue,
-                            danhGia = danhGiaValue,
                             benhNhanDaKham = benhNhanDaKham.toIntOrNull() ?: 0,
                             sdt = sdt,
                             anh = "", // Ảnh sẽ được cập nhật sau khi upload xong
                             website = website
                         )
 
-                        // Upload ảnh bác sĩ lên Firebase Storage và lưu vào Firestore
                         selectedImageUri?.let { uri ->
                             val storageReference =
                                 FirebaseStorage.getInstance().reference.child("doctor_images/${doctorId}")
@@ -302,7 +291,6 @@ fun AddDoctorScreen(
                         } ?: run {
                             viewModel.saveDoctor(bacSi)
                             navController.popBackStack()
-//                            Toast.makeText(context, "Thêm bác sĩ thành công!", Toast.LENGTH_SHORT).show()
                         }
                     },
                     modifier = Modifier.fillMaxWidth()

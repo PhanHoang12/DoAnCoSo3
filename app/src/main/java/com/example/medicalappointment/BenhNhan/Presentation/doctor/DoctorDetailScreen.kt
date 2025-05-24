@@ -21,7 +21,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.medicalapp.Admin.Data.Model.Doctor
@@ -150,11 +149,18 @@ fun DoctorDetailScreen(
                                     color = Color(0xFF1E88E5)
                                 )
                                 Text("Khoa: ${it.chuyenKhoa}", fontSize = 16.sp, color = Color.Gray)
+                                val ratingText = if (averageRating > 0) {
+                                    "⭐ ${"%.1f".format(averageRating)} | ${doctor.kinhNghiem} năm kinh nghiệm"
+                                } else {
+                                    "Chưa có đánh giá | ${doctor.kinhNghiem} năm kinh nghiệm"
+                                }
+
                                 Text(
-                                    "⭐ ${"%.1f".format(averageRating)} | ${doctor.kinhNghiem} năm kinh nghiệm",
+                                    ratingText,
                                     fontSize = 14.sp,
                                     color = Color(0xFF777777)
                                 )
+
                             }
                         }
                     }

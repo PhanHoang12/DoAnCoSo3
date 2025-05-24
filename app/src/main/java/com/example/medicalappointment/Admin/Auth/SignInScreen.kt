@@ -1,6 +1,6 @@
 package com.example.medicalapp.Admin.Auth
 
-import android.util.Log
+
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -58,7 +58,7 @@ fun SignInScreen(navController: NavController) {
             hasNavigated = true
             val uid = currentUser!!.uid
 
-            val testDoctorId = "HP01"
+            val testDoctorId = "DL001"
             FirebaseFirestore.getInstance()
                 .collection("users").document(uid).get()
                 .addOnSuccessListener { doc ->
